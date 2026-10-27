@@ -1,5 +1,5 @@
 # file: action.yml
-# version: 1.1.4
+# version: 1.1.5
 # guid: a1b2c3d4-e5f6-4789-a0b1-c2d3e4f5a6b7
 
 name: "CI Workflow Helpers"
@@ -700,7 +700,10 @@ runs:
                 if result.returncode == 0:
                     print(success_message)
                 else:
-                    print(failure_message)
+                    # A failing script must fail the step. (A script that does not
+                    # exist is not a failure: `npm run --if-present` exits 0.)
+                    print(f"::error::{failure_message} (npm run {script_name} exited {result.returncode})")
+                    raise SystemExit(result.returncode)
             finally:
                 os.chdir(original_dir)
 
